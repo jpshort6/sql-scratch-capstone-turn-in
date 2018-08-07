@@ -1,0 +1,103 @@
+1.
+WITH first_touch AS (
+    SELECT user_id,
+        MIN(timestamp) as first_touch_at
+    FROM page_visits
+    GROUP BY user_id)
+SELECT ft.user_id,
+    ft.first_touch_at,
+    pv.utm_source,
+		pv.utm_campaign
+FROM first_touch ft
+JOIN page_visits pv
+    ON ft.user_id = pv.user_id
+    AND ft.first_touch_at = pv.timestamp;
+
+SELECT COUNT(DISTINCT utm_source)
+FROM page_visits;
+
+SELECT COUNT(DISTINCT utm_campaign)
+FROM page_visits;
+
+SELECT utm_source, COUNT(DISTINCT utm_campaign)
+FROM page_visits
+GROUP BY utm_source;
+
+
+2.
+SELECT DISTINCT page_name
+FROM page_visits;
+
+SELECT page_name, COUNT(page_name)
+FROM page_visits
+GROUP BY page_name;
+
+
+3.
+WITH first_touch AS (
+    SELECT user_id,
+        MIN(timestamp) as first_touch_at
+    FROM page_visits
+    GROUP BY user_id)
+SELECT
+		pv.utm_campaign, COUNT(utm_campaign) AS 'specific count'  
+FROM first_touch ft
+JOIN page_visits pv
+    ON ft.user_id = pv.user_id
+    AND ft.first_touch_at = pv.timestamp
+    GROUP BY utm_campaign
+    ORDER BY 'specific count';
+
+
+4.
+WITH last_touch AS (
+    SELECT user_id,
+        MAX(timestamp) as last_touch_at
+    FROM page_visits
+    GROUP BY user_id)
+SELECT
+		pv.utm_campaign, COUNT(utm_campaign) AS 'specific count'  
+FROM last_touch lt
+JOIN page_visits pv
+    ON lt.user_id = pv.user_id
+    AND lt.last_touch_at = pv.timestamp
+    GROUP BY utm_campaign
+    ORDER BY 'specific count';
+
+
+5.
+WITH last_touch AS (
+    SELECT user_id,
+        MAX(timestamp) as last_touch_at
+    FROM page_visits
+    GROUP BY user_id)
+SELECT
+		pv.page_name, COUNT(utm_campaign) AS 'specific count'  
+FROM last_touch lt
+JOIN page_visits pv
+    ON lt.user_id = pv.user_id
+    AND lt.last_touch_at = pv.timestamp
+  WHERE page_name = '4 - purchase'
+  GROUP BY page_name;
+
+
+6.
+WITH last_touch AS (
+    SELECT user_id,
+        MAX(timestamp) as last_touch_at
+    FROM page_visits
+    GROUP BY user_id)
+SELECT
+		pv.page_name, pv.utm_campaign, COUNT(utm_campaign) AS 'specific count'  
+FROM last_touch lt
+JOIN page_visits pv
+    ON lt.user_id = pv.user_id
+    AND lt.last_touch_at = pv.timestamp
+  WHERE page_name = '4 - purchase'
+  GROUP BY page_name, utm_campaign
+    ORDER BY 'specific count';
+
+
+
+
+
